@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G検定 用語検索</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f5f7; --card:#fff; --text:#1c2230; --sub:#596477; --line:#d9dde5;
+  --accent:#2a55d9; --accent-soft:#e7edff; --on-accent:#fff; --mark:#ffe27a; --warn:#8a5a00; --warn-soft:#fff3d6;
+  --neg:#b3203f; --neg-soft:#ffe6eb; --star:#8f6300; --hit:#fff8dc;
+  --oth:#0b6e5f; --oth-soft:#e0f4ef;
+  --f1:#7a5cf0; --f2:#2f8fd8; --f3:#1a9c72; --f4:#d9821a; --f5:#d04a6a; --f6:#68778d;
+}
+@media not all{
+  :root{--bg:#13161c; --card:#1c212a; --text:#e8ebf1; --sub:#a2adbe; --line:#303846;
+    --accent:#8aa6ff; --accent-soft:#252f4d; --on-accent:#12161f; --mark:#6d5b12; --warn:#f0c674; --warn-soft:#3a3016;
+    --neg:#ff8fa6; --neg-soft:#44202a; --star:#e6b84a; --hit:#2c2a1a; --oth:#5ccfba; --oth-soft:#17332e;}
+  .mode.oth.on{color:#0c1a17}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 "Segoe UI","Yu Gothic UI","Meiryo",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 12px}
+button:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+[hidden]{display:none!important}
+
+.top{background:var(--bg);padding:10px 0 0}
+.modes{display:flex;flex-wrap:wrap;gap:6px}
+.mode{font-weight:600}
+.mode.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.searchrow{display:flex;gap:8px;position:sticky;top:0;z-index:10;background:var(--bg);padding:10px 0}
+.micbtn{flex:none;width:44px;min-height:44px;padding:0;font-size:18px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.micbtn.on{background:#d33;border-color:#d33;animation:micp 1s infinite}
+.micbtn.err{border-color:var(--warn,#c80)}
+@keyframes micp{50%{opacity:.55}}
+#panelQuestion .micbtn{margin:4px 0}
+#q{flex:1;min-width:0;font-size:18px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--card)}
+#q:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{border-radius:999px;padding:3px 12px;font-size:13px}
+.chip .n{opacity:.75;margin-left:2px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+details.filters{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+details.filters summary{cursor:pointer;font-weight:600;font-size:14px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 10px;margin-top:8px}
+.fgrid label{font-size:12px;color:var(--sub);display:block}
+.fgrid select{width:100%;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--card)}
+.fgrid label.check{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);margin-top:20px}
+.fbtns{margin-top:10px}
+.hint{font-size:12px;color:var(--sub);margin:0}
+.hint code,.hint kbd{background:var(--accent-soft);border-radius:4px;padding:0 4px;font:inherit}
+.statusline{margin:10px 0 2px;font-size:14px;color:var(--sub);font-weight:600}
+.note{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:6px 10px;margin:8px 0;font-size:13px}
+.note.soft{background:transparent;padding:0 2px;color:var(--sub)}
+.linkish{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;font-size:inherit}
+
+.card{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--fc,var(--line));border-radius:10px;padding:10px 14px;margin:8px 0}
+.card h3{margin:0;font-size:17px;line-height:1.4;overflow-wrap:anywhere}
+.card p{margin:4px 0;overflow-wrap:anywhere}
+.imp{font-size:12px;color:var(--star);letter-spacing:1px;white-space:nowrap}
+.alias{font-size:12px;color:var(--sub);overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;margin-top:6px}
+.tag{background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:6px;border:0;font-size:12px}
+.meta{color:var(--sub)}
+.kind{font-size:12px;color:var(--sub);font-weight:600}
+.badge{font-size:11px;font-weight:400;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.formula{font-family:Consolas,"Yu Gothic UI",monospace;background:var(--accent-soft);border-radius:6px;padding:3px 8px;display:inline-block}
+.card.conf{border-left-color:var(--f5)}
+.card.table{border-left-color:var(--f2)}
+.card.form{border-left-color:var(--f3)}
+.card.news{border-left-color:var(--f4)}
+.card.kako{border-left-color:var(--f1)}
+.kakoq{white-space:pre-wrap}
+.kakoopts{list-style:none;padding:0;margin:4px 0}
+.kakoopts li{display:flex;gap:8px;margin:2px 0;overflow-wrap:anywhere}
+.card details summary{cursor:pointer;color:var(--accent);font-size:13px}
+.quick{border:2px solid var(--accent);background:var(--accent-soft);border-radius:12px;padding:10px 14px;margin:10px 0}
+.qk-h{font-size:12px;font-weight:700;color:var(--accent)}
+.qk-main{font-size:20px;font-weight:700;display:flex;gap:10px;align-items:baseline;margin:2px 0}
+.qk-why,.qk-2nd{font-size:13px;color:var(--sub)}
+.qk-note{font-size:11px;color:var(--sub);margin-top:4px}
+.mode.oth.on{background:var(--oth);border-color:var(--oth)}
+.obanner{background:var(--oth-soft);border-left:4px solid var(--oth);border-radius:8px;padding:8px 12px;margin:12px 0 0;font-size:13px}
+#oq{flex:1;min-width:0;font-size:18px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--card)}
+#oq:focus{outline:none;border-color:var(--oth)}
+.ocontrols{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0;font-size:13px}
+.ocard{border-left-color:var(--oth)}
+.opath{font-size:12px;color:var(--sub);overflow-wrap:anywhere}
+.opath:empty{display:none}
+.otitle .ostar{color:var(--star);margin-left:6px;font-size:14px}
+.obody{font-size:14px;margin-top:4px}
+.ol{overflow-wrap:anywhere;margin:1px 0}
+.ol.li{padding-left:1em;text-indent:-1em}
+.ol.gap{height:.5em}
+.otoggle{margin-top:6px;font-size:13px;padding:3px 10px}
+.tcontrols{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;font-size:13px}
+.tcontrols input[type=number]{width:6.5em;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.tcontrols input[type=search]{flex:1;min-width:10em;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.tcontrols select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);max-width:100%}
+.tdec{margin:18px 0 4px;font-size:15px;border-bottom:2px solid var(--accent)}
+.tev{display:grid;grid-template-columns:4.6em 1fr auto;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line)}
+.tyear{font-weight:700;color:var(--accent);white-space:nowrap}
+.ttext{overflow-wrap:anywhere}
+.yrmark{color:var(--accent)}
+.tsrc{font-size:12px;padding:2px 8px;max-width:14em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.years{font-size:12px;margin-top:4px;color:var(--sub)}
+.years .tag{margin-left:4px}
+@media (max-width:560px){.tev{grid-template-columns:4.2em 1fr}.tsrc{grid-column:2;justify-self:start}}
+.otoc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.rankinfo{background:var(--accent-soft);border-radius:8px;padding:6px 10px;margin:8px 0;font-size:12px}
+.rankrow{display:flex;align-items:center;gap:8px;margin:4px 0}
+.rank{font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap}
+.rank.r1{color:var(--accent)}
+.bar{flex:1;max-width:220px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent)}
+.sitefoot{padding-bottom:24px;font-size:12px}
+.sitefoot a{color:var(--sub)}
+.flag{font-size:12px;padding:1px 8px;border-radius:6px;color:var(--sub)}
+.flag.on{background:var(--warn-soft);color:var(--warn);border-color:var(--warn);font-weight:600}
+.trow .flag{margin-left:6px}
+.tlink{border:0;background:none;padding:0;border-radius:0;color:inherit;font:inherit;text-align:left;text-decoration:underline dotted var(--sub);text-underline-offset:3px}
+.tlink:hover{color:var(--accent);text-decoration-color:var(--accent)}
+.meta a{color:var(--accent)}
+.scroll{overflow-x:auto;margin:6px 0}
+table{border-collapse:collapse;font-size:13px;min-width:100%}
+th,td{border:1px solid var(--line);padding:3px 8px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);white-space:nowrap}
+tr.hit td{background:var(--hit)}
+mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
+.empty{text-align:center;color:var(--sub);padding:40px 12px}
+.more{display:block;margin:14px auto}
+main{padding-bottom:60px}
+
+#qtext{width:100%;min-height:150px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--card);resize:vertical;margin-top:12px}
+#qtext:focus{outline:none;border-color:var(--accent)}
+.qbtns{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.qtype{background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:3px 10px;font-size:13px;font-weight:600}
+.qtype.neg{background:var(--neg-soft);color:var(--neg)}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+.qcard h3{margin:0 0 4px;font-size:15px;font-weight:600}
+.qcard h3 small{font-weight:400;color:var(--sub);font-size:12px;margin-left:4px}
+.qcard.sim{border-style:dashed}
+.qtext{white-space:pre-wrap;margin:0 0 6px;overflow-wrap:anywhere}
+.opt h3{display:flex;gap:8px;font-size:15px;font-weight:400}
+.optlabel{font-weight:700;color:var(--accent);flex:none;min-width:1.4em}
+.opttext{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.trow{border-left:4px solid var(--fc,var(--line));padding:2px 0 2px 8px;margin:5px 0;overflow-wrap:anywhere}
+.tname,.termchip{border:0;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;text-align:left}
+.termchip{font-weight:400;margin-left:6px;font-size:13px}
+.tdesc{display:block;font-size:14px}
+.again,.simlabel,.muted{font-size:12px;color:var(--sub);margin:6px 0 0}
+.rel h3{font-size:15px;margin:18px 0 4px}
+.disclaimer{margin-top:16px}
+@media (max-width:560px){#q{font-size:16px}.fgrid{grid-template-columns:1fr 1fr}.card{padding:8px 10px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="modes" role="tablist">
+    <button type="button" id="tabKeyword" class="mode on" role="tab" aria-selected="true" aria-controls="panelKeyword">キーワード検索</button>
+    <button type="button" id="tabQuestion" class="mode" role="tab" aria-selected="false" aria-controls="panelQuestion">問題文から検索</button>
+    <button type="button" id="tabOthers" class="mode oth" role="tab" aria-selected="false" aria-controls="panelOthers">他の人の資料</button>
+    <button type="button" id="tabTimeline" class="mode" role="tab" aria-selected="false" aria-controls="panelTimeline">年表</button>
+  </div>
+</div></div>
+
+<main><div class="wrap">
+  <div id="panelKeyword" role="tabpanel" aria-labelledby="tabKeyword">
+    <div class="searchrow">
+      <input id="q" type="search" placeholder="用語・解説を検索（例: 勾配 消失）" aria-label="キーワード" autofocus autocomplete="off">
+      <button type="button" id="reset" title="検索語と絞り込みをすべて消します">すべてリセット</button>
+    </div>
+    <p class="hint">スペースで AND 検索、<code>-語</code> で除外。全角半角・カタカナひらがな・長音やハイフンの違いは無視し、「エンコーダー」「kmeans」も見つかります。略語や英語名の別名、ひらがなの読み（かがくしゅう）でも検索でき、見つからない語は近い語を表示します。<kbd>/</kbd> で検索欄へ移動。</p>
+    <details class="filters" id="filtersBox" open>
+      <summary>絞り込み・並び順</summary>
+      <div class="fgrid">
+        <div><label for="fField">分野</label><select id="fField"></select></div>
+        <div><label for="fImp">重要度</label><select id="fImp"></select></div>
+        <div><label for="fSyl">シラバス項目</label><select id="fSyl"></select></div>
+        <div><label for="fKana">頭文字</label><select id="fKana"></select></div>
+        <div><label for="fKind">区分</label><select id="fKind"></select></div>
+        <div><label for="fScope">検索対象</label>
+          <select id="fScope"><option value="all">名前＋解説</option><option value="term">名前のみ</option><option value="desc">解説のみ</option></select></div>
+        <div><label for="fSort">並び順</label>
+          <select id="fSort"><option value="rel">関連度順</option><option value="imp">重要度の高い順</option><option value="no">資料の順</option></select></div>
+        <div><label class="check"><input type="checkbox" id="fFuzzy" checked> あいまい検索</label></div>
+        <div><label class="check"><input type="checkbox" id="fFlagged"> 付箋のみ（<span id="flagCount">0</span>）</label></div>
+      </div>
+      <div class="fbtns"><button type="button" id="resetFilters" title="検索語は残したまま、絞り込み・並び順・検索対象・種類を初期状態に戻します">絞り込み・並び順をリセット</button></div>
+    </details>
+    <div class="chips" id="types" role="tablist" aria-label="結果の種類"></div>
+    <div class="statusline" id="status" role="status"></div>
+    <div id="notes"></div>
+    <div id="list"></div>
+    <button type="button" id="more" class="more" hidden>さらに表示</button>
+  </div>
+
+  <div id="panelQuestion" role="tabpanel" aria-labelledby="tabQuestion" hidden>
+    <textarea id="qtext" aria-label="問題文" placeholder="問題文と選択肢をまとめて貼り付けてください。&#10;例）&#10;空欄に当てはまるものを1つ選べ&#10;A）フレーム問題&#10;B）シンボルグラウンディング問題"></textarea>
+    <div class="qbtns">
+      <button type="button" id="qpaste">貼り付けて分析</button>
+      <button type="button" id="qclear">クリア</button>
+      <button type="button" id="qsample">例を入れる</button>
+    </div>
+    <div id="qresult" aria-live="polite"></div>
+  </div>
+
+  <div id="panelOthers" role="tabpanel" aria-labelledby="tabOthers" hidden>
+    <div class="obanner">他の人がまとめた知識（<span id="oname">追加参考資料.txt</span>）だけを検索します。用語集・過去問の検索結果とは混ざりません。内容の正確さは資料の作成者によるもので、このサイトでは確認していません。</div>
+    <div class="searchrow">
+      <input id="oq" type="search" placeholder="資料の中を検索（例: 勾配 消失）" aria-label="他の人の資料を検索" autocomplete="off">
+      <button type="button" id="oreset">クリア</button>
+    </div>
+    <p class="hint">スペースで AND 検索、<code>-語</code> で除外。表記の違いは無視し、用語集にある略語・英語名の別名でも探します。</p>
+    <div class="ocontrols"><label><input type="checkbox" id="ofuzzy" checked> 見つからないとき、表記の近い項目も探す</label><span id="oinfo" class="muted" aria-live="polite"></span></div>
+    <div id="olist"></div>
+    <button type="button" id="omore" class="more" hidden>さらに表示</button>
+  </div>
+
+  <div id="panelTimeline" role="tabpanel" aria-labelledby="tabTimeline" hidden>
+    <p class="hint" style="margin-top:12px">資料の文中にある年（1956年、2010年代など）を集めて、年の順に並べます。試験で年号を問われたときの確認用です。年の記述がない出来事は載りません。</p>
+    <div class="tcontrols">
+      <label>対象 <select id="tsrc"><option value="main">用語集・混同ポイント・比較表など</option><option value="others">他の人の資料</option></select></label>
+      <label>から <input id="tfrom" type="number" min="1900" max="2099" placeholder="1900"></label>
+      <label>まで <input id="tto" type="number" min="1900" max="2099" placeholder="2099"></label>
+      <input id="tq" type="search" placeholder="語で絞る（例: ブーム）" aria-label="年表を語で絞る" autocomplete="off">
+      <button type="button" id="treset">解除</button>
+    </div>
+    <div class="chips" id="tdecs" aria-label="年代で絞る"></div>
+    <div class="ocontrols"><span id="tinfo" class="muted" aria-live="polite"></span></div>
+    <div id="tlist"></div>
+    <button type="button" id="tmore" class="more" hidden>さらに表示</button>
+  </div>
+</div></main>
+
+<footer class="wrap sitefoot"><a href="update.html">学習ブックからデータを更新する</a></footer>
+<script src="data.js"></script>
+<script src="data_extra.js"></script>
+<script src="data_jdla.js"></script>
+<script src="aliases.js"></script>
+<script src="readings.js"></script>
+<script src="others_src.js"></script>
+<script src="search.js"></script>
+<script src="others.js"></script>
+<script src="timeline.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
