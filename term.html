@@ -25,6 +25,11 @@ h2{font-size:16px;margin:4px 0 8px;color:var(--accent)}
 .choice.ng{background:var(--ng-soft);border-color:var(--ng)}
 .q{white-space:pre-wrap;overflow-wrap:anywhere}
 .expl{margin-top:10px;padding:8px 12px;background:var(--accent-soft);border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;min-width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left;overflow-wrap:anywhere}
+thead th{background:var(--accent-soft)}
+tbody th{background:var(--accent-soft);white-space:nowrap}
 .note{font-size:12px;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:6px 10px;margin:8px 0}
 </style>
 </head>
@@ -61,12 +66,26 @@ h2{font-size:16px;margin:4px 0 8px;color:var(--accent)}
   function load(k){
     return fetch('details/part_'+k+'.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};});
   }
-  var ps=[];for(var i=1;i<=PARTS;i++)ps.push(load(i));
-  Promise.all(ps).then(function(arr){
+  function loadCmp(k){
+    return fetch('details/cmp_'+k+'.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};});
+  }
+  function cmpHtml(c){
+    if(!c||!c.head||!c.rows)return '';
+    var h='<section><h2>'+esc(c.title||'似た用語との比較')+'</h2><div class="tblwrap"><table><thead><tr>'+
+      c.head.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'</tr></thead><tbody>'+
+      c.rows.map(function(r){return '<tr>'+r.map(function(x,i){return (i===0?'<th>':'<td>')+esc(x)+(i===0?'</th>':'</td>');}).join('')+'</tr>';}).join('')+
+      '</tbody></table></div></section>';
+    return h;
+  }
+  var ps=[],cs=[];for(var i=1;i<=PARTS;i++){ps.push(load(i));cs.push(loadCmp(i));}
+  Promise.all([Promise.all(ps),Promise.all(cs)]).then(function(res){
+    var arr=res[0],carr=res[1];
     var d=null;arr.forEach(function(o){if(o&&o[String(no)])d=o[String(no)];});
+    var cmp=null;carr.forEach(function(o){if(o&&o[String(no)])cmp=o[String(no)];});
     if(!d){root.innerHTML=header()+'<section><p>この用語の詳しい解説はまだありません。</p></section>';return;}
     var html=header();
     html+='<section class="detail"><h2>詳しい解説</h2>'+esc(d.detail).split('\n').filter(Boolean).map(function(p){return '<p>'+p+'</p>';}).join('')+'</section>';
+    html+=cmpHtml(cmp);
     var q=d.q;
     html+='<section><h2>予想問題('+esc(q.type)+')</h2><div class="note">この問題は用語から推測して作成した予想問題で、実際の過去問ではありません。</div>'+
       '<div class="q">'+esc(q.question)+'</div><div id="choices"></div><div id="result"></div></section>';
