@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G検定 過去問・復習資料</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--text:#1c2230;--sub:#596477;--line:#d9dde5;--accent:#2a55d9;--accent-soft:#e7edff;--on-accent:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#13161c;--card:#1c212a;--text:#e8ebf1;--sub:#a2adbe;--line:#303846;--accent:#8aa6ff;--accent-soft:#252f4d;--on-accent:#12161f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.75 "Segoe UI","Yu Gothic UI","Meiryo",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+nav{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+nav a,nav button{display:inline-block;margin:3px 4px 3px 0;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);text-decoration:none;font:inherit;font-size:13px;cursor:pointer}
+nav a.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+article{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 18px 24px;margin:14px 0 40px;overflow-wrap:anywhere}
+h1,h2,h3{line-height:1.4}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}
+th,td{border:1px solid var(--line);padding:5px 9px;vertical-align:top}
+th{background:var(--accent-soft)}
+code,pre{background:var(--accent-soft);border-radius:6px}
+code{padding:0 4px}
+pre{padding:10px;overflow-x:auto}
+pre code{padding:0;background:none}
+blockquote{margin:10px 0;padding:2px 14px;border-left:4px solid var(--accent);color:var(--sub)}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a href="./">← 用語検索へ戻る</a>
+  <span id="links"></span>
+</div></nav>
+<main class="wrap"><article id="doc">読み込み中…</article></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var DIR='G検定_過去問復習/';
+  var FILES=[
+    ['01_第1部A_第1〜3問.md','1部A 1〜3問'],
+    ['02_第1部B_第4〜6問.md','1部B 4〜6問'],
+    ['03_第1部C_第7〜10問.md','1部C 7〜10問'],
+    ['04_第2〜4部.md','2〜4部'],
+    ['05_第5部_模擬問題.md','5部 模擬問題'],
+    ['06_第6部_最終暗記シート.md','6部 暗記シート'],
+    ['07_補遺_用語の使われ方(空欄補充・不適切選択肢).md','補遺 用語の使われ方']
+  ];
+  var doc=document.getElementById('doc'), links=document.getElementById('links');
+  var cur=0;
+  try{ var h=parseInt(location.hash.slice(1),10); if(h>=1&&h<=FILES.length) cur=h-1; }catch(e){}
+  FILES.forEach(function(f,i){
+    var a=document.createElement('a'); a.href='#'+(i+1); a.textContent=f[1]; a.dataset.i=i;
+    a.addEventListener('click',function(){ load(i); });
+    links.appendChild(a);
+  });
+  function mark(){ Array.prototype.forEach.call(links.children,function(a){ a.classList.toggle('on',+a.dataset.i===cur); }); }
+  function load(i){
+    cur=i; mark(); doc.textContent='読み込み中…';
+    fetch(encodeURI(DIR+FILES[i][0])).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function(t){
+      doc.innerHTML=DOMPurify.sanitize(marked.parse(t));
+      window.scrollTo(0,0);
+    }).catch(function(){ doc.textContent='読み込めませんでした。'; });
+  }
+  window.addEventListener('hashchange',function(){
+    var h=parseInt(location.hash.slice(1),10); if(h>=1&&h<=FILES.length&&h-1!==cur) load(h-1);
+  });
+  load(cur);
+})();
+</script>
+</body>
+</html>
