@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用語の詳しい解説</title>
+<style>
+:root{color-scheme:light dark;--bg:#f4f5f7;--card:#fff;--text:#1c2230;--sub:#596477;--line:#d9dde5;--accent:#2a55d9;--accent-soft:#e7edff;--on-accent:#fff;--ok:#0b6e5f;--ok-soft:#e0f4ef;--ng:#b3203f;--ng-soft:#ffe6eb;--warn:#8a5a00;--warn-soft:#fff3d6}
+@media (prefers-color-scheme:dark){:root{--bg:#13161c;--card:#1c212a;--text:#e8ebf1;--sub:#a2adbe;--line:#303846;--accent:#8aa6ff;--accent-soft:#252f4d;--on-accent:#12161f;--ok:#5ccfba;--ok-soft:#17332e;--ng:#ff8fa6;--ng-soft:#44202a;--warn:#f0c674;--warn-soft:#3a3016}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.8 "Segoe UI","Yu Gothic UI","Meiryo",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 40px}
+nav{padding:12px 0;display:flex;flex-wrap:wrap;gap:8px}
+a.btn,button.btn{display:inline-block;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);text-decoration:none;font:inherit;font-size:14px;cursor:pointer}
+a.btn:hover,button.btn:hover{border-color:var(--accent)}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 18px;margin:12px 0}
+h1{font-size:22px;margin:4px 0;line-height:1.4;overflow-wrap:anywhere}
+h2{font-size:16px;margin:4px 0 8px;color:var(--accent)}
+.meta{font-size:12px;color:var(--sub)}
+.imp{color:#8f6300}
+.detail p{margin:6px 0;overflow-wrap:anywhere}
+.choice{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;cursor:pointer;overflow-wrap:anywhere}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.ok{background:var(--ok-soft);border-color:var(--ok)}
+.choice.ng{background:var(--ng-soft);border-color:var(--ng)}
+.q{white-space:pre-wrap;overflow-wrap:anywhere}
+.expl{margin-top:10px;padding:8px 12px;background:var(--accent-soft);border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.note{font-size:12px;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:6px 10px;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="btn" href="./">← 用語検索へ戻る</a>
+    <a class="btn" id="prev" href="#" hidden>← 前の用語</a>
+    <a class="btn" id="next" href="#" hidden>次の用語 →</a>
+  </nav>
+  <div id="root">読み込み中…</div>
+</div>
+<script src="data.js"></script>
+<script>
+(function(){
+  'use strict';
+  var root=document.getElementById('root');
+  var PARTS=6;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  var no=parseInt(new URLSearchParams(location.search).get('no'),10);
+  var list=GLOSSARY.filter(function(g){return g.imp!=='－';});
+  var g=GLOSSARY.filter(function(x){return x.no===no;})[0];
+  if(!g){root.textContent='用語が見つかりません。';return;}
+  document.title=g.term+'｜用語の詳しい解説';
+  var idx=list.findIndex(function(x){return x.no===no;});
+  function nav(id,item){var a=document.getElementById(id);if(item){a.href='term.html?no='+item.no;a.title=item.term;a.hidden=false;}}
+  if(idx>0)nav('prev',list[idx-1]);
+  if(idx>=0&&idx<list.length-1)nav('next',list[idx+1]);
+
+  function header(){
+    return '<section><h1>'+esc(g.term)+(g.imp!=='－'?' <span class="imp">'+esc(g.imp)+'</span>':'')+'</h1>'+
+      '<p>'+esc(g.desc)+'</p><div class="meta">'+esc(g.field)+(g.syl!=='－'?'・'+esc(g.syl):'')+'・No.'+g.no+'</div></section>';
+  }
+  function load(k){
+    return fetch('details/part_'+k+'.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};});
+  }
+  var ps=[];for(var i=1;i<=PARTS;i++)ps.push(load(i));
+  Promise.all(ps).then(function(arr){
+    var d=null;arr.forEach(function(o){if(o&&o[String(no)])d=o[String(no)];});
+    if(!d){root.innerHTML=header()+'<section><p>この用語の詳しい解説はまだありません。</p></section>';return;}
+    var html=header();
+    html+='<section class="detail"><h2>詳しい解説</h2>'+esc(d.detail).split('\n').filter(Boolean).map(function(p){return '<p>'+p+'</p>';}).join('')+'</section>';
+    var q=d.q;
+    html+='<section><h2>予想問題('+esc(q.type)+')</h2><div class="note">この問題は用語から推測して作成した予想問題で、実際の過去問ではありません。</div>'+
+      '<div class="q">'+esc(q.question)+'</div><div id="choices"></div><div id="result"></div></section>';
+    root.innerHTML=html;
+    var box=document.getElementById('choices'),res=document.getElementById('result');
+    var btns=[];
+    q.choices.forEach(function(c,i){
+      var b=document.createElement('button');b.type='button';b.className='choice';
+      b.textContent=(i+1)+'. '+c;
+      b.addEventListener('click',function(){
+        btns.forEach(function(x,j){x.disabled=true;if(j===q.ans)x.classList.add('ok');});
+        if(i!==q.ans)b.classList.add('ng');
+        res.innerHTML='<div class="expl"><b>'+(i===q.ans?'正解です。':'不正解です。正解は '+(q.ans+1)+' です。')+'</b>\n'+esc(q.expl)+'</div>';
+      });
+      btns.push(b);box.appendChild(b);
+    });
+  });
+})();
+</script>
+</body>
+</html>

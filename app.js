@@ -105,6 +105,7 @@
         ${flagButton(g.no)}
         <button type="button" class="tag" data-k="fField" data-v="${esc(g.field)}">${esc(g.field)}</button>
         ${g.syl !== '－' ? `<button type="button" class="tag" data-k="fSyl" data-v="${esc(g.syl)}">${esc(g.syl)}</button>` : ''}
+        ${g.imp !== '－' ? `<a class="tag" style="text-decoration:none" href="term.html?no=${g.no}" title="詳しい解説と予想4択">詳しく見る</a>` : ''}
         <span class="meta">${esc(g.kind)}・No.${g.no}</span>
       </div></article>`;
   }
